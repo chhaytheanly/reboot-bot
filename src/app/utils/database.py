@@ -5,6 +5,8 @@ conn = sqlite3.connect("rent.db", check_same_thread=False)
 cursor = conn.cursor()
 
 def init_db():
+    cursor.execute("PRAGMA foreign_keys = ON")
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS rooms (
         room_number TEXT PRIMARY KEY,
@@ -21,7 +23,8 @@ def init_db():
         tenant_id INTEGER,
         amount REAL,
         date TEXT,
-        status TEXT
+        status TEXT,
+        FOREIGN KEY (room_number) REFERENCES rooms(room_number) ON DELETE CASCADE
     )
     """)
 
@@ -36,28 +39,19 @@ def init_db():
 
 
 def assign_tenant(room_number, tenant_id):
-    """
-    Assign a tenant to a room.
-    - Prevents duplicate room assignment
-    - Ensures one tenant = one room
-    """
-
-    # Check if room already taken
     existing = cursor.execute(
         "SELECT tenant_id FROM rooms WHERE room_number=?",
         (room_number,)
     ).fetchone()
 
     if existing and existing[0] is not None:
-        return False  # Room already assigned
+        return False 
 
-    # Remove tenant from previous room (if any)
     cursor.execute(
         "UPDATE rooms SET tenant_id=NULL WHERE tenant_id=?",
         (tenant_id,)
     )
 
-    # Assign tenant to new room
     cursor.execute(
         "UPDATE rooms SET tenant_id=? WHERE room_number=?",
         (tenant_id, room_number)
@@ -186,7 +180,22 @@ def remove_tenant(tenant_id):
     )
     conn.commit()
     
+def reset_db():
+    cursor.execute("PRAGMA foreign_keys = OFF")
+
+    cursor.execute("DROP TABLE IF EXISTS payments")
+    cursor.execute("DROP TABLE IF EXISTS rooms")
+
+    cursor.execute("PRAGMA foreign_keys = ON")
+
+    conn.commit()
+    
 def seed_data():
+    cursor.execute("PRAGMA foreign_keys = ON")
+
+    # Only clear payments (rooms must exist)
+    cursor.execute("DELETE FROM payments")
+
     tenants = [
         {"id": 1001, "room": "1", "paid": True},
         {"id": 1002, "room": "2", "paid": True},
