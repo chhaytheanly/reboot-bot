@@ -1,8 +1,8 @@
+from src.app.utils.helpers.logging import logger
 from telegram import Update
 from telegram.ext import ContextTypes
 from src.app.utils.database import get_unpaid, reset_rooms
 from src.app.utils.verify import is_admin
-
 
 class AdminService:
 
@@ -52,3 +52,22 @@ class AdminService:
             "📊 Admin Dashboard",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
+        
+    @staticmethod
+    async def send_reminder(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not is_admin(update.effective_user.id):
+            return
+
+        unpaid = get_unpaid()
+
+        if not unpaid:
+            await update.message.reply_text("✅ All rooms are paid.")
+            return
+
+        msg = "⏰ Payment Reminder Sent for:\n"
+        msg += "\n".join([f"Room {r}" for r in unpaid])
+
+        await update.message.reply_text(msg)
+        logger.info(f"Admin {update.effective_user.id} sent payment reminders for rooms: {unpaid}")
+        
+        

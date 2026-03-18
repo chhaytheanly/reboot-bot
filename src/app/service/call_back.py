@@ -48,3 +48,21 @@ class CallbackService:
             )
 
             logger.info(f"Admin rejected payment for Room {room}")
+            
+        elif data.startswith("remind_"):
+            _, tenant_id, room = data.split("_")
+
+            await query.edit_message_caption(
+                f"⏰ Payment Reminder Sent\n🏠 Room {room}"
+            )
+
+            logger.info(f"Admin sent payment reminder for Room {room}")
+            
+        elif data.startswith("history_"):
+            _, tenant_id, room = data.split("_")
+
+            await query.edit_message_caption(
+                f"📜 Payment History\n🏠 Room {room}"
+            )
+
+            logger.info(f"Admin viewed payment history for Room {room}")

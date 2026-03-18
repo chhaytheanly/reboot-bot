@@ -103,7 +103,7 @@ class TenantService:
                     await context.bot.send_photo(
                         chat_id=admin,
                         photo=photo_file,
-                        caption=f"💰 Payment Request\n🏠 Room: {room}\n👤 User: {user_id}",
+                        caption=f"💰 Payment Request\n🏠 Room: {room}\n👤 User: {user_id} \n Name: {user.first_name + ' ' + user.last_name if user.last_name else user.first_name}",
                         reply_markup=InlineKeyboardMarkup(keyboard)
                     )
             except Exception as e:
@@ -112,3 +112,4 @@ class TenantService:
         await update.message.reply_text("✅ Receipt sent for approval.")
 
         logger.info(f"Receipt submitted by user {user_id} for Room {room}")
+        
