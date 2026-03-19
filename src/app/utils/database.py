@@ -28,7 +28,6 @@ def init_db():
     )
     """)
 
-    # Initialize 30 rooms
     for i in range(1, 31):
         cursor.execute(
             "INSERT OR IGNORE INTO rooms (room_number) VALUES (?)",
