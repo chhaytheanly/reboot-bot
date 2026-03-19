@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from src.app.utils.database import get_unpaid, reset_rooms
+from src.database.database import get_unpaid, reset_rooms
 
 def start_scheduler(bot):
     scheduler = BackgroundScheduler()
