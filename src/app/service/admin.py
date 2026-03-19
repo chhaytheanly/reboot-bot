@@ -1,83 +1,96 @@
-from unittest import result
-
 from src.app.utils.helpers.logging import logger
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import ContextTypes
-from src.app.utils.database import get_paid, get_room_info, get_unpaid, reset_rooms
+from src.database.database import get_paid, get_room_info, get_unpaid, reset_rooms
 from src.app.utils.verify import is_admin
+import os
 
 class AdminService:
 
     @staticmethod
-    async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        user = update.message.from_user
+    async def _check_admin(update: Update) -> bool:
+        user = update.effective_user
         if not is_admin(user.id):
             await update.message.reply_text("❌ You do not have permission to access this command.")
-            logger.warning(f"Unauthorized access attempt by user {user.id} ({user.username}) to /status command.")
-            return
-        
-        unpaid = get_unpaid()
-        if not unpaid:
-            await update.message.reply_text("✅ All rooms are paid.")
-            logger.info(f"Admin {user.id} checked status: all rooms are paid.")
-            return
-        
-        msg = "❌ Unpaid Rooms:\n"
-        for room in unpaid:
-            info = get_room_info(room)
-            tenant_name = info.get("tenant_name", "Unknown Tenant")
-            msg += f"Room {room}: {tenant_name}\n"
+            logger.warning(f"Unauthorized access attempt by {user.id} ({user.username})")
+            return False
+        return True
 
-        await update.message.reply_text(msg)
-        logger.info(f"Admin {user.id} checked status: unpaid rooms - {unpaid}")
-        
+    @staticmethod
+    async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not await AdminService._check_admin(update):
+            return
+
+        user = update.effective_user
+        unpaid_rooms = get_unpaid()
+
+        if not unpaid_rooms:
+            await update.message.reply_text("✅ All rooms are paid.")
+            logger.info(f"Admin {user.id} checked status: all paid")
+            return
+
+        lines = ["❌ *Unpaid Rooms:*"]
+
+        for room in unpaid_rooms:
+            info = get_room_info(room)
+
+            if not info:
+                continue
+
+            tenant_name = info.get("tenant_name") or "Unknown"
+            last_paid = info.get("last_paid") or "Never"
+
+            lines.append(f"• Room {room} → {tenant_name} (Last: {last_paid})")
+
+        await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
+        logger.info(f"Admin {user.id} checked unpaid rooms: {unpaid_rooms}")
+
     @staticmethod
     async def paid_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        user = update.message.from_user
-        if not is_admin(user.id):
-            await update.message.reply_text("❌ You do not have permission to access this command.")
-            logger.warning(f"Unauthorized access attempt by user {user.id} ({user.username}) to /paid_done command.")
+        if not await AdminService._check_admin(update):
             return
-        
-        pay_done = get_paid()  
-        
-        if not pay_done:
+
+        user = update.effective_user
+        paid_rooms = get_paid()
+
+        if not paid_rooms:
             await update.message.reply_text("⚠️ No rooms are currently marked as paid.")
-            logger.info(f"Admin {user.id} attempted to mark payment as done, but no rooms are currently marked as paid.")
             return
-        
-        if len(pay_done) == 1:
-            msg = f"✅ Room {pay_done[0]} marked as paid for the month."
-        else:
-            msg = "✅ Rooms marked as paid for the month:\n"
-            msg += "\n".join([f"Room {r}" for r in pay_done])
-            
-        # Get normalize result 
-        
+
+        room_details = [get_room_info(r) for r in paid_rooms]
+
+        lines = ["✅ *Paid Rooms:*"]
+
+        for r, info in zip(paid_rooms, room_details):
+            tenant_name = (info or {}).get("tenant_name", "Unknown")
+            lines.append(f"• Room {r} → {tenant_name}")
+
+        await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
+
         result = {
-            "paid_rooms": pay_done,
-            "details": [get_room_info(r) for r in pay_done],
-            "tenent_names": [get_room_info(r).get("tenant_name", "Unknown Tenant") for r in pay_done],
+            "paid_rooms": paid_rooms,
+            "details": room_details,
+            "tenant_names": [
+                (info or {}).get("tenant_name", "Unknown")
+                for info in room_details
+            ],
         }
-        
-        await update.message.reply_text(msg)
-        logger.info(f"Admin {user.id} marked payment as done for the month.")
-        
+
+        logger.info(f"Admin {user.id} viewed paid rooms: {result}")
+
     @staticmethod
     async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if not is_admin(update.effective_user.id):
+        if not await AdminService._check_admin(update):
             return
 
         reset_rooms()
         await update.message.reply_text("🔄 Monthly reset complete")
+        logger.info(f"Admin {update.effective_user.id} performed monthly reset")
 
     @staticmethod
     async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if not is_admin(update.effective_user.id):
+        if not await AdminService._check_admin(update):
             return
-
-        import os
-        from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
         webapp_url = os.getenv("WEBAPP_URL")
 
@@ -93,23 +106,26 @@ class AdminService:
             "📊 Admin Dashboard",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
-        
+
     @staticmethod
     async def send_reminder(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if not is_admin(update.effective_user.id):
+        if not await AdminService._check_admin(update):
             return
 
-        unpaid = get_unpaid()
+        user = update.effective_user
+        unpaid_rooms = get_unpaid()
 
-        if not unpaid:
+        if not unpaid_rooms:
             await update.message.reply_text("✅ All rooms are paid.")
-            logger.info(f"Admin {update.effective_user.id} attempted to send payment reminders, but all rooms are paid.")
             return
 
-        msg = "⏰ Payment Reminder Sent for:\n"
-        msg += "\n".join([f"Room {r}" for r in unpaid])
+        lines = ["⏰ *Payment Reminder Sent:*"]
 
-        await update.message.reply_text(msg)
-        logger.info(f"Admin {update.effective_user.id} sent payment reminders for rooms: {unpaid}")
-        
-        
+        for r in unpaid_rooms:
+            info = get_room_info(r)
+            tenant_name = (info or {}).get("tenant_name", "Unknown")
+            lines.append(f"• Room {r} → {tenant_name}")
+
+        await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
+
+        logger.info(f"Admin {user.id} sent reminders for: {unpaid_rooms}")

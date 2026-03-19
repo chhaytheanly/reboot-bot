@@ -11,6 +11,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS rooms (
         room_number TEXT PRIMARY KEY,
         tenant_id INTEGER UNIQUE,
+        tenant_name TEXT,
         paid INTEGER DEFAULT 0,
         last_paid TEXT
     )
@@ -36,8 +37,7 @@ def init_db():
 
     conn.commit()
 
-
-def assign_tenant(room_number, tenant_id):
+def assign_tenant(room_number, tenant_id, tenant_name):
     existing = cursor.execute(
         "SELECT tenant_id FROM rooms WHERE room_number=?",
         (room_number,)
@@ -47,18 +47,17 @@ def assign_tenant(room_number, tenant_id):
         return False 
 
     cursor.execute(
-        "UPDATE rooms SET tenant_id=NULL WHERE tenant_id=?",
+        "UPDATE rooms SET tenant_id=NULL, tenant_name=NULL WHERE tenant_id=?",
         (tenant_id,)
     )
 
     cursor.execute(
-        "UPDATE rooms SET tenant_id=? WHERE room_number=?",
-        (tenant_id, room_number)
+        "UPDATE rooms SET tenant_id=?, tenant_name=? WHERE room_number=?",
+        (tenant_id, tenant_name, room_number)
     )
 
     conn.commit()
     return True
-
 
 def get_room_by_user(tenant_id):
     result = cursor.execute(
@@ -71,7 +70,7 @@ def get_room_by_user(tenant_id):
 
 def get_room_info(room_number):
     result = cursor.execute(
-        "SELECT room_number, tenant_id, paid, last_paid FROM rooms WHERE room_number=?",
+        "SELECT room_number, tenant_id, tenant_name, paid, last_paid FROM rooms WHERE room_number=?",
         (room_number,)
     ).fetchone()
 
@@ -79,8 +78,9 @@ def get_room_info(room_number):
         return {
             "room_number": result[0],
             "tenant_id": result[1],
-            "paid": result[2],
-            "last_paid": result[3]
+            "tenant_name": result[2],
+            "paid": result[3],
+            "last_paid": result[4]
         }
 
     return None
@@ -88,15 +88,16 @@ def get_room_info(room_number):
 
 def get_all_rooms():
     rows = cursor.execute(
-        "SELECT room_number, tenant_id, paid, last_paid FROM rooms"
+        "SELECT room_number, tenant_id, tenant_name, paid, last_paid FROM rooms"
     ).fetchall()
 
     return [
         {
             "room_number": r[0],
             "tenant_id": r[1],
-            "paid": r[2],
-            "last_paid": r[3]
+            "tenant_name": r[2],
+            "paid": r[3],
+            "last_paid": r[4]
         }
         for r in rows
     ]

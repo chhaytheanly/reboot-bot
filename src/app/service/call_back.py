@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from src.app.utils.database import mark_paid
+from src.database.database import mark_paid
 from src.app.utils.verify import is_admin
 from src.app.service.tenant import TenantService
 from src.app.utils.helpers import Logger
@@ -17,11 +17,12 @@ class CallbackService:
 
         await query.answer()
 
-        user_id = query.from_user.id
+        user = query.from_user
+        user_id = user.id
 
         if data.startswith("room_"):
             room = data.split("_")[1]
-            return await TenantService.select_room(query, room, user_id)
+            return await TenantService.select_room(query, room, user)
 
         if data == "pay":
             return await TenantService.show_qr(update, context)
