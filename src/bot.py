@@ -44,6 +44,7 @@ def main():
     app.add_handler(CommandHandler("start", TenantService.start))
     app.add_handler(CommandHandler("status", AdminService.status))
     app.add_handler(CommandHandler("reset", AdminService.reset))
+    app.add_handler(CommandHandler("paid", AdminService.paid_done))
     app.add_handler(CallbackQueryHandler(CallbackService.handle_callback))
     app.add_handler(MessageHandler(filters.PHOTO, TenantService.handle_receipt))
 
