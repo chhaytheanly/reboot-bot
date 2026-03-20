@@ -12,8 +12,6 @@ logger = Logger(__name__)
 
 
 class CallbackService:
-    """Handle all callback queries with improved UX"""
-
     @staticmethod
     async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Route callback to appropriate handler"""
@@ -117,7 +115,6 @@ class CallbackService:
             parse_mode="Markdown"
         )
 
-        # Notify tenant
         try:
             await context.bot.send_message(
                 chat_id=int(tenant_id),
@@ -148,7 +145,6 @@ class CallbackService:
             parse_mode="Markdown"
         )
 
-        # Notify tenant
         try:
             await context.bot.send_message(
                 chat_id=int(tenant_id),
