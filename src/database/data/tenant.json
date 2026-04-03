@@ -1,0 +1,33 @@
+{
+  "tenants": [
+    { "tenant_id": 1001, "tenant_name": "Alice", "room": "1", "paid": true, "amount": 120 },
+    { "tenant_id": 1002, "tenant_name": "Bob", "room": "2", "paid": true, "amount": 120 },
+    { "tenant_id": 1003, "tenant_name": "Charlie", "room": "3", "paid": false },
+    { "tenant_id": 1004, "tenant_name": "David", "room": "4", "paid": true, "amount": 120 },
+    { "tenant_id": 1005, "tenant_name": "Emma", "room": "5", "paid": true, "amount": 120 },
+
+    { "tenant_id": 1006, "tenant_name": "Frank", "room": "6", "paid": false },
+    { "tenant_id": 1007, "tenant_name": "Grace", "room": "7", "paid": true, "amount": 120 },
+    { "tenant_id": 1008, "tenant_name": "Hannah", "room": "8", "paid": true, "amount": 120 },
+    { "tenant_id": 1009, "tenant_name": "Ivan", "room": "9", "paid": false },
+    { "tenant_id": 1010, "tenant_name": "Jack", "room": "10", "paid": true, "amount": 120 },
+
+    { "tenant_id": 1011, "tenant_name": "Kevin", "room": "11", "paid": true, "amount": 130 },
+    { "tenant_id": 1012, "tenant_name": "Lily", "room": "12", "paid": false },
+    { "tenant_id": 1013, "tenant_name": "Mike", "room": "13", "paid": true, "amount": 130 },
+    { "tenant_id": 1014, "tenant_name": "Nina", "room": "14", "paid": true, "amount": 130 },
+    { "tenant_id": 1015, "tenant_name": "Oscar", "room": "15", "paid": false },
+
+    { "tenant_id": 1016, "tenant_name": "Paul", "room": "16", "paid": true, "amount": 130 },
+    { "tenant_id": 1017, "tenant_name": "Queen", "room": "17", "paid": true, "amount": 130 },
+    { "tenant_id": 1018, "tenant_name": "Robert", "room": "18", "paid": false },
+    { "tenant_id": 1019, "tenant_name": "Sophia", "room": "19", "paid": true, "amount": 130 },
+    { "tenant_id": 1020, "tenant_name": "Tom", "room": "20", "paid": true, "amount": 130 },
+
+    { "tenant_id": 1021, "tenant_name": "Uma", "room": "21", "paid": false },
+    { "tenant_id": 1022, "tenant_name": "Victor", "room": "22", "paid": true, "amount": 140 },
+    { "tenant_id": 1023, "tenant_name": "Wendy", "room": "23", "paid": true, "amount": 140 },
+    { "tenant_id": 1024, "tenant_name": "Xavier", "room": "24", "paid": false },
+    { "tenant_id": 1025, "tenant_name": "Yara", "room": "25", "paid": true, "amount": 140 }
+  ]
+}

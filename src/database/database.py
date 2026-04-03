@@ -10,6 +10,7 @@ def init_db():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS rooms (
         room_number TEXT PRIMARY KEY,
+        name TEXT,
         tenant_id INTEGER UNIQUE,
         tenant_name TEXT,
         paid INTEGER DEFAULT 0,
@@ -34,7 +35,12 @@ def init_db():
             "INSERT OR IGNORE INTO rooms (room_number) VALUES (?)",
             (str(i),)
         )
-
+    try:
+        cols = [c[1] for c in cursor.execute("PRAGMA table_info(rooms)").fetchall()]
+        if "name" not in cols:
+            cursor.execute("ALTER TABLE rooms ADD COLUMN name TEXT")
+    except Exception:
+        pass
     conn.commit()
 
 def assign_tenant(room_number, tenant_id, tenant_name):

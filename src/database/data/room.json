@@ -1,0 +1,36 @@
+{
+  "rooms": [
+    { "room_number": "1", "name": "A1" },
+    { "room_number": "2", "name": "A2" },
+    { "room_number": "3", "name": "A3" },
+    { "room_number": "4", "name": "A4" },
+    { "room_number": "5", "name": "A5" },
+    { "room_number": "6", "name": "A6" },
+    { "room_number": "7", "name": "A7" },
+    { "room_number": "8", "name": "A8" },
+    { "room_number": "9", "name": "A9" },
+    { "room_number": "10", "name": "A10" },
+
+    { "room_number": "11", "name": "B1" },
+    { "room_number": "12", "name": "B2" },
+    { "room_number": "13", "name": "B3" },
+    { "room_number": "14", "name": "B4" },
+    { "room_number": "15", "name": "B5" },
+    { "room_number": "16", "name": "B6" },
+    { "room_number": "17", "name": "B7" },
+    { "room_number": "18", "name": "B8" },
+    { "room_number": "19", "name": "B9" },
+    { "room_number": "20", "name": "B10" },
+
+    { "room_number": "21", "name": "C1" },
+    { "room_number": "22", "name": "C2" },
+    { "room_number": "23", "name": "C3" },
+    { "room_number": "24", "name": "C4" },
+    { "room_number": "25", "name": "C5" },
+    { "room_number": "26", "name": "C6" },
+    { "room_number": "27", "name": "C7" },
+    { "room_number": "28", "name": "C8" },
+    { "room_number": "29", "name": "C9" },
+    { "room_number": "30", "name": "C10" }
+  ]
+}
